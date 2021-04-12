@@ -1,0 +1,98 @@
+Description: Serverless CodeBuild CICD
+
+Parameters:
+  GitHubToken:
+    Type: String
+    NoEcho: true
+
+  SourceLocation:
+    Type: String
+    Default: https://github.com/viplav12/aws-sam-simple-spriboot-app.git
+
+  CodeBuildProjectName:
+    Type: String
+    Default: ServerlessCodeBuild
+
+  Region:
+    Type: String
+    Default: eu-central-1
+    AllowedValues:
+      - eu-central-1
+      - eu-west-1
+
+Resources:
+  ServerlessBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 2
+            Status: Enabled
+
+  CodeBuildSourceCredential:
+    Type: AWS::CodeBuild::SourceCredential
+    Properties:
+      Token: !Ref GitHubToken
+      ServerType: GITHUB
+      AuthType: PERSONAL_ACCESS_TOKEN
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    DependsOn: CodeBuildRole
+    Properties:
+      Name: !Ref CodeBuildProjectName
+      Source:
+        Auth:
+          Resource: !Ref CodeBuildSourceCredential
+          Type: OAUTH
+        Type: GITHUB
+        Location: !Ref SourceLocation
+        BuildSpec: buildspec.yml
+      Triggers:
+        Webhook: true
+        FilterGroups:
+          - - Type: EVENT
+              Pattern: PULL_REQUEST_CREATED,PULL_REQUEST_UPDATED
+            - Type: BASE_REF
+              Pattern: ^refs/heads/master$
+              ExcludeMatchedPattern: false
+            - Type: ACTOR_ACCOUNT_ID
+              Pattern: 12345
+              ExcludeMatchedPattern: true
+          - - Type: EVENT
+              Pattern: PUSH
+            - Type: HEAD_REF
+              Pattern: ^refs/heads/.*
+            - Type: FILE_PATH
+              Pattern: READ_ME
+              ExcludeMatchedPattern: true
+      ServiceRole: !Ref CodeBuildRole
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:2.0
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: SERVERLESS_BUCKET
+            Value: !Ref ServerlessBucket
+          - Name: REGION_NAME
+            Value: !Ref Region
+      Cache:
+        Type: LOCAL
+        Modes:
+          - LOCAL_CUSTOM_CACHE
+      Artifacts:
+        Type: NO_ARTIFACTS
+      BadgeEnabled: true
+
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: codebuild.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess

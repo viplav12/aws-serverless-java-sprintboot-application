@@ -1,0 +1,25 @@
+
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: openjdk8
+    commands:
+      - pip install --upgrade awscli
+      - pip install --user aws-sam-cli
+      - USER_BASE_PATH=$(python -m site --user-base)
+      - export PATH=$PATH:$USER_BASE_PATH/bin
+  build:
+    commands:
+      - echo "Step 1 s3 bucket name is ${SERVERLESS_BUCKET}"
+      - echo "Region value is ${REGION_NAME}"
+      - mvn clean install
+      - aws cloudformation package --template-file serverless-cloudformation-template.yaml --output-template-file /tmp/packaged-template.yaml --s3-bucket ${SERVERLESS_BUCKET} --region ${REGION_NAME}
+      - aws cloudformation deploy --template-file /tmp/packaged-template.yaml --stack-name serverless-stack --capabilities CAPABILITY_IAM --region ${REGION_NAME} --no-fail-on-empty-changeset
+
+cache:
+  # Cache maven and Python downloads
+  paths:
+    - '/root/.m2/**/*'
+    - '/root/.local/**/*'
