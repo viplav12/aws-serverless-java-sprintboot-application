@@ -83,7 +83,6 @@ Step-1: Share the associate git username (who want to check/see my code reposito
 
 Step-2: Deploy cloudformation for serverless application i.e codebuild-cloudformation.yaml in regions eu-central-1
         - Use all the default values 
-        - Use "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" in GitHubToken (to create Personal Access token https://github.com/settings/tokens)
         
 Step-3: To trigger codebuild and deploy serverless-cloudformation-template.yaml: 
          - Commit any small change in the code or
@@ -124,12 +123,3 @@ Deploy infrastructure in two regions but keep one region inactive with respect t
 ## TODOs
 - Register DNS Zone and configure Route53 with CNAME to two API in different region based on latency to cater active-active scenario,draft template is with the code `todo-route53-tmpl.yaml`
  
-
-
-
-
-
-
-
-
-
