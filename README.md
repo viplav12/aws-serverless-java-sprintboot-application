@@ -26,7 +26,7 @@ Expected output: Health check: OK
 
 ---
 **Note:**
-Replace the <base-uri> : 7hhf5wqd30.execute-api.eu-central-1.amazonaws.com
+Replace the <base-uri> : od6j6xh6g4.execute-api.eu-central-1.amazonaws.com
 ---
 
 ## Design Consideration
