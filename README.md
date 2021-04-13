@@ -155,7 +155,7 @@ git clone https://github.com/viplav12/aws-serverless-java-sprintboot-application
 **Step-5**: To trigger codebuild and deploy serverless-cloudformation-template.yaml: 
     - Push any small change in your git hub code repo (Trigger is added in AWS CodeBuild) or
     - Manually trigger code build 
-    **Notes**: It takes around 5-7 minutes to build code via code build and trigger serverless-cloudformation-template.yaml
+    **Notes**: It takes around 3-4 minutes to build code via code build and trigger serverless-cloudformation-template.yaml
     
 **Step-6**: Copy the API uri from CloudFormation output
         Test API-1: https://copied-uri/healthcheck.html (get call)
